@@ -1,0 +1,83 @@
+✅ Code Description – Discrete SAC for BNPL Credit Decision
+This project implements a Discrete Soft Actor-Critic (SAC) agent tailored to optimize credit suggestions in a Buy Now Pay Later (BNPL) scenario. The agent learns a policy over discrete credit offerings and aims to balance approval strategy with user repayment probability.
+
+🔧 1. QNetwork
+Approximates the soft Q-values for state-action pairs:
+
+python
+Copy
+Edit
+Linear(state) → ReLU → Linear → ReLU → Linear → Q(s, a)
+Two separate Q-networks (Q1, Q2) are used to mitigate overestimation.
+
+🧠 2. PolicyNetwork
+Learns a stochastic policy π(a|s) via softmax over logits.
+Returns both:
+
+probs: action probabilities
+
+log_probs: log of probabilities (for entropy regularization)
+
+📦 3. Replay Buffer
+A classic experience buffer that stores tuples of:
+(state, action, reward, next_state, done)
+Allows sampling random mini-batches for stable training.
+
+🧪 4. Environment: SimpleBNPLEnv
+Simulates BNPL context where:
+
+State = user features
+
+Action = a discrete credit offer (amount, duration)
+
+Reward:
+
++2: user accepted and paid back
+
+-1: user accepted but didn’t pay
+
++1: credit wasn’t given and user defaulted
+
+-2: credit wasn’t given but user would’ve paid
+
+🧰 5. Discrete SAC Agent
+Combines:
+
+Two Q-networks + targets: Q₁, Q₂
+
+Policy network: π(a|s)
+
+Entropy-weighted policy update
+
+Soft target updates:
+
+python
+Copy
+Edit
+target_param = τ * param + (1 - τ) * target_param
+🔁 6. Training Loop
+Across 50 episodes:
+
+Agent interacts with environment, stores transitions
+
+Policy and Q-networks are updated per batch
+
+Accuracy is monitored by converting pred != 0 → “credit offered”
+
+📊 7. Metrics Tracked
+Total reward per episode
+
+Training accuracy
+
+Validation accuracy
+
+(Optional) losses per Q-function and policy
+
+💡 Use Case
+Discrete SAC is ideal for:
+
+High-stakes credit decisions with exploration-exploitation trade-offs
+
+Learning nuanced user behavior over time
+
+Replacing rule-based credit strategies with adaptive policies
